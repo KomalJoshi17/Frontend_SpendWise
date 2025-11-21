@@ -1,15 +1,20 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// FIXED ENV VARIABLE (Matches Vercel env)
+const API_URL = import.meta.env.VITE_API_BASE_URL;
+
+// FALLBACK FOR DEV ONLY
+const BASE_URL = API_URL || 'http://localhost:5000';
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: `${BASE_URL}`,
   headers: {
     'Content-Type': 'application/json',
   },
   timeout: 30000,
 });
 
+// REQUEST INTERCEPTOR
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -21,6 +26,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// RESPONSE INTERCEPTOR
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -33,46 +39,50 @@ api.interceptors.response.use(
   }
 );
 
+// AUTH APIs
 export const authAPI = {
-  signup: (data) => api.post('/auth/signup', data),
-  login: (data) => api.post('/auth/login', data),
-  logout: () => api.post('/auth/logout'),
+  signup: (data) => api.post('/api/auth/signup', data),
+  login: (data) => api.post('/api/auth/login', data),
+  logout: () => api.post('/api/auth/logout'),
+
+  // FIXED GOOGLE OAUTH (NO LOCALHOST)
   googleAuth: () => {
-    window.location.href =
-      `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/google`;
+    window.location.href = `${BASE_URL}/api/auth/google`;
   },
 };
 
+// TRANSACTION APIs
 export const transactionAPI = {
-  create: (data) => api.post('/transactions', data),
-  getAll: () => api.get('/transactions'),
-  update: (id, data) => api.put(`/transactions/${id}`, data),
-  delete: (id) => api.delete(`/transactions/${id}`),
+  create: (data) => api.post('/api/transactions', data),
+  getAll: () => api.get('/api/transactions'),
+  update: (id, data) => api.put(`/api/transactions/${id}`, data),
+  delete: (id) => api.delete(`/api/transactions/${id}`),
 };
 
+// INSIGHTS APIs
 export const insightsAPI = {
   getMonthly: (income) =>
-    api.get('/insights/monthly', income ? { params: { income } } : {}),
+    api.get('/api/insights/monthly', income ? { params: { income } } : {}),
 };
 
+// PROFILE APIs
 export const profileAPI = {
-  get: () => api.get('/profile'),
-  update: (data) => api.put('/profile', data),
-  changePassword: (data) => api.put('/profile/password', data),
-
+  get: () => api.get('/api/profile'),
+  update: (data) => api.put('/api/profile', data),
+  changePassword: (data) => api.put('/api/profile/password', data),
   requestEmailChange: (newEmail) =>
-    api.post('/profile/request-email-change', { newEmail }),
-
+    api.post('/api/profile/request-email-change', { newEmail }),
   verifyEmailOTP: (otp) =>
-    api.post('/profile/verify-email-otp', { otp }),
+    api.post('/api/profile/verify-email-otp', { otp }),
 };
 
+// AI APIs
 export const aiAPI = {
-  categorize: (description) => api.post('/ai/categorize', { description }),
-  getSavingsRecommendations: () => api.get('/ai/savings'),
-  chat: (message, context) => api.post('/ai/chat', { message, context }),
-  getTip: () => api.post('/ai/tip'),
-  getTwin: () => api.get('/ai/twin'),
+  categorize: (description) => api.post('/api/ai/categorize', { description }),
+  getSavingsRecommendations: () => api.get('/api/ai/savings'),
+  chat: (message, context) => api.post('/api/ai/chat', { message, context }),
+  getTip: () => api.post('/api/ai/tip'),
+  getTwin: () => api.get('/api/ai/twin'),
 };
 
 export default api;
