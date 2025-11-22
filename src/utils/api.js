@@ -3,8 +3,16 @@ import axios from 'axios';
 // FIXED ENV VARIABLE (Matches Vercel env)
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-// FALLBACK FOR DEV ONLY
-const BASE_URL = API_URL || 'http://localhost:5000';
+// FALLBACK FOR DEV ONLY - In production, API_URL should always be set
+let BASE_URL;
+if (API_URL) {
+  BASE_URL = API_URL;
+} else if (import.meta.env.MODE === 'production') {
+  console.error('❌ VITE_API_BASE_URL is required in production');
+  BASE_URL = ''; // Will cause errors, but better than using localhost
+} else {
+  BASE_URL = 'http://localhost:5000'; // Dev fallback only
+}
 
 const api = axios.create({
   baseURL: `${BASE_URL}`,
