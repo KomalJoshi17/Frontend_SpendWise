@@ -102,7 +102,7 @@ const Signup = () => {
 
           <div className="flex justify-center">
             <ReCAPTCHA
-              sitekey="6Ld50BIsAAAAAKRWurkgL9FEAYdBMIWXEuBHMCQM"
+              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
               onChange={(token) => setCaptchaToken(token)}
               theme="dark"
             />
